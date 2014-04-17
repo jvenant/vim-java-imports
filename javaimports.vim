@@ -15,7 +15,7 @@
 " Usage:
 "   Copy this file in your vim plugin folder  
 "   No classpath or configuration needed. This plugin use the regular vim search.  
-"   So you only need a good seach index (through ctags or cscope for example)
+"   So you only need a good search index (through ctags or cscope for example)
 " Commands:
 "   <Leader>is Sort imports
 "   <Leader>ia Search class from <cword>, add it to the imports and sort imports
