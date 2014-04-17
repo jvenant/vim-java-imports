@@ -22,5 +22,5 @@ See http://www.gnu.org/copyleft/gpl.txt
   * You can define the package deth blank line separator using g:packageSepDepth
 
 ### Notes:
-  This plugin is an improvment of the anonymous function found here :
+  This plugin is an improvement of the anonymous function found here :
   http://vim.wikia.com/wiki/Add_Java_import_statements_automatically
