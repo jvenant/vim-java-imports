@@ -1,6 +1,6 @@
 " javaimports.vim -- Manage java imports and packages
 " Author: Johan Venant <jvenant@invicem.pro>
-" Last Modified: 17-Apr-2014 15:36
+" Last Modified: 13-Jun-2016 15:36
 " Requires: Vim-6.0 or higher
 " Version: 1.0
 " Licence: This program is free software; you can redistribute it and/or
@@ -44,10 +44,15 @@ map <silent> <script> <Plug>JavaSortImport :set lz<CR>:call <SID>JavaSortImport(
 map <silent> <script> <Plug>JavaInsertImport :call <SID>JavaInsertSortImport()<CR>
 map <silent> <script> <Plug>JavaInsertPackage :set lz<CR>:call <SID>JavaInsertPackage()<CR>:set nolz<CR>
 
-let g:sortedPackage = ["java","javax", "org", "com"]
-let g:packageSepDepth = 2
+if !exists('g:sortedPackage')
+    let g:sortedPackage = ["java", "javax", "org", "com"]
+endif
 
-let s:importPattern = '^\s*import\s\+.*;'
+if !exists('g:packageSepDepth')
+    let g:packageSepDepth = 2
+endif
+
+let s:importPattern = '^\s*import\s\+.*;\?$'
 fun! s:JavaSortImport()
     1
     if search(s:importPattern) > 0
@@ -83,7 +88,7 @@ fun! s:JavaSortImport()
             normal! O
         endwhile
         if getline(".") =~ "^$"
-          delete
+            delete
         endif
     endif
 endfun
@@ -98,14 +103,15 @@ endfun
 fun! s:JavaInsertImport()
     exe "normal mz"
     let cur_class = expand("<cword>")
+    let semicolon = s:GetSemicolon()
     try
-        if search('^\s*import\s.*\.' . cur_class . '\s*;') > 0
+        if search('^\s*import\s.*\.' . cur_class . '\s*;\?$') > 0
             throw getline('.') . ": import already exist!"
         endif
         wincmd }
         wincmd P
         1
-        if search('^\s*public.*\s\%(class\|interface\)\s\+' . cur_class) > 0
+        if search('^\%(\s*public.*\s\|open\s\|abstract\s\|enum\s\)\?\%(class\|interface\|object\)\s\+' . cur_class) > 0
             1
             if search('^\s*package\s') > 0
                 yank y
@@ -113,7 +119,7 @@ fun! s:JavaInsertImport()
                 throw "Package definition not found!"
             endif
         else
-            if search('^\s*import\s.*\.' . cur_class . '\s*;') > 0
+            if search('^\s*import\s.*\.' . cur_class . '\s*;\?$') > 0
                 yank y
             else
                 throw cur_class . ": class not found!"
@@ -135,8 +141,9 @@ fun! s:JavaInsertImport()
         endif
         if match(getline("."), '^\s*package\s\+.*') >= 0
             substitute/^\s*package/import/g
-            substitute/\s\+/ /g
-            exe "normal! 2ER." . cur_class . ";\<Esc>lD"
+            substitute/;\?$//g
+            substitute/\s\+/ /ig
+            exe "normal! 2Ea \<Esc>R." . cur_class . s:GetSemicolon() . "\<Esc>lD"
         endif
     catch /.*/
         echoerr v:exception
@@ -152,12 +159,16 @@ endfun
 
 fun! s:JavaInsertPackage()
     let dir = getcwd() . "/" . expand("%")
-    let dir = substitute(dir, "^.*\/main\/java\/", "", "")
-    let dir = substitute(dir, "\/[^\/]*$", "", "")
-    let dir = substitute(dir, "\/", ".", "g")
+    let dir = substitute(dir, '^.*\/\%(main\|test\)\/\%(java\|kotlin\)\/', '', '')
+    let dir = substitute(dir, '\/[^\/]*$', '', '')
+    let dir = substitute(dir, '\/', '.', 'g')
     1
     if search('^\s*package\s.*', '') == 0
         normal! O
     endif
-    exe "normal ^Cpackage " . dir . ";"
+    exe "normal ^Cpackage " . dir . s:GetSemicolon()
+endfun
+
+fun! s:GetSemicolon()
+    return &filetype == "kotlin" ? "" : ";"
 endfun
