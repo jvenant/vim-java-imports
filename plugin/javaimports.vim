@@ -76,17 +76,19 @@ fun! s:JavaSortImport()
             endif
         endfor
         1
-        while search(s:importPattern, 'W') > 0
-            let curLine = getline(".")
-            let curMatch = substitute(curLine, '\(^\s*import\s\+\(\.\?[^\.]\+\)\{0,' . g:packageSepDepth . '\}\).*', '\1', "")
-            if (curMatch == curLine)
-                let curMatch = substitute(curMatch, '\(.*\)\..*', '\1', "")
-            endif
-            while match(getline("."), curMatch) >= 0
-                normal! j
+        if (g:packageSepDepth > 0)
+            while search(s:importPattern, 'W') > 0
+                let curLine = getline(".")
+                let curMatch = substitute(curLine, '\(^\s*import\s\+\(\.\?[^\.]\+\)\{0,' . g:packageSepDepth . '\}\).*', '\1', "")
+                if (curMatch == curLine)
+                    let curMatch = substitute(curMatch, '\(.*\)\..*', '\1', "")
+                endif
+                while match(getline("."), curMatch) >= 0
+                    normal! j
+                endwhile
+                normal! O
             endwhile
-            normal! O
-        endwhile
+        endif
         if getline(".") =~ "^$"
             delete
         endif
