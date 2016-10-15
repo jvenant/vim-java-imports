@@ -16,7 +16,7 @@ See http://www.gnu.org/copyleft/gpl.txt
  
 ### Commands
   * &lt;Leader&gt;is Sort imports
-  * &lt;Leader&gt;ia Search class from <cword>, add it to the imports and sort imports
+  * &lt;Leader&gt;ia Search class from \<cword\>, add it to the imports and sort imports
   * &lt;Leader&gt;ip add or replace package declaration
   * You can define the package sort order using g:sortedPackage
   * You can define the package deth blank line separator using g:packageSepDepth
